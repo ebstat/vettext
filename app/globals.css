@@ -1,0 +1,549 @@
+:root {
+  color-scheme: light dark;
+
+  --kleur-bg: #faf9f5;
+  --kleur-oppervlak: #ffffff;
+  --kleur-rand: #e8e3d9;
+  --kleur-tekst: #201e1b;
+  --kleur-tekst-zwak: #6f6a61;
+  --kleur-accent: #c2694b;
+  --kleur-accent-hover: #a85639;
+  --kleur-accent-zwak: #f3e3da;
+  --kleur-praktijk: #c2694b;
+  --kleur-klant: #4c6b8a;
+  --kleur-fout: #b3261e;
+  --kleur-fout-zwak: #f8e4e2;
+  --schaduw: 0 1px 2px rgba(32, 30, 27, 0.06), 0 2px 10px rgba(32, 30, 27, 0.05);
+  --radius: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kleur-bg: #1c1b19;
+    --kleur-oppervlak: #262421;
+    --kleur-rand: #3a3733;
+    --kleur-tekst: #f2f0ea;
+    --kleur-tekst-zwak: #a8a296;
+    --kleur-accent: #e08863;
+    --kleur-accent-hover: #eda283;
+    --kleur-accent-zwak: #3a2c24;
+    --kleur-praktijk: #e08863;
+    --kleur-klant: #8fb2d4;
+    --kleur-fout: #ff8a80;
+    --kleur-fout-zwak: #3a2422;
+    --schaduw: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 12px rgba(0, 0, 0, 0.28);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--kleur-bg);
+  color: var(--kleur-tekst);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, select {
+  font: inherit;
+  color: inherit;
+}
+
+select {
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--kleur-rand);
+  background: var(--kleur-oppervlak);
+}
+
+/* ---------- Layout ---------- */
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.inhoud {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.inhoud > main {
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+  width: 21rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 1.25rem;
+  background: var(--kleur-oppervlak);
+  border-right: 1px solid var(--kleur-rand);
+}
+
+.sidebar .merk {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  padding: 0.25rem 0.25rem 1rem;
+  color: var(--kleur-accent);
+}
+
+.sidebar .nieuw-gesprek {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  padding: 0.65rem;
+  margin-bottom: 1.25rem;
+  border-radius: var(--radius);
+  background: var(--kleur-accent);
+  color: #fff;
+  box-shadow: var(--schaduw);
+  transition: background-color 0.15s ease;
+}
+
+.sidebar .nieuw-gesprek:hover,
+.sidebar .nieuw-gesprek.actief {
+  background: var(--kleur-accent-hover);
+}
+
+.nieuw-gesprek-icoon {
+  width: 0.7rem;
+  height: 0.7rem;
+  position: relative;
+}
+
+.nieuw-gesprek-icoon::before,
+.nieuw-gesprek-icoon::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+  border-radius: 1px;
+}
+
+.nieuw-gesprek-icoon::before {
+  inset: 0.32rem 0 0.32rem 0;
+  height: 2px;
+}
+
+.nieuw-gesprek-icoon::after {
+  inset: 0 0.32rem 0 0.32rem;
+  width: 2px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar li {
+  position: relative;
+}
+
+.sidebar li a {
+  display: block;
+  padding: 0.65rem 2.1rem 0.65rem 0.75rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+}
+
+.sidebar li a:hover {
+  background: var(--kleur-bg);
+}
+
+.sidebar li a.actief {
+  background: var(--kleur-accent-zwak);
+  border-color: var(--kleur-accent);
+}
+
+.verwijder-knop {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kleur-tekst-zwak);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease;
+}
+
+.sidebar li:hover .verwijder-knop,
+.sidebar li:focus-within .verwijder-knop {
+  opacity: 1;
+}
+
+.verwijder-knop:hover {
+  background: var(--kleur-fout-zwak);
+  color: var(--kleur-fout);
+}
+
+.verwijder-knop:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.wordt-verwijderd {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sidebar .tijdspanne {
+  font-size: 0.8rem;
+  color: var(--kleur-tekst-zwak);
+}
+
+.sidebar .klantnaam {
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.sidebar .preview {
+  font-size: 0.88rem;
+  color: var(--kleur-tekst-zwak);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.1rem;
+}
+
+.sidebar-leeg {
+  color: var(--kleur-tekst-zwak);
+  font-size: 0.9rem;
+  padding: 0 0.25rem;
+}
+
+/* ---------- Status ---------- */
+
+.status-bezig {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--kleur-tekst-zwak);
+  margin: 0;
+}
+
+.status-bezig::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: var(--kleur-accent);
+  animation: puls 1.2s ease-in-out infinite;
+}
+
+@keyframes puls {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+.status-mislukt {
+  font-size: 0.9rem;
+  color: var(--kleur-fout);
+  margin: 0;
+}
+
+.sidebar .status-bezig,
+.sidebar .status-mislukt {
+  margin-top: 0.1rem;
+}
+
+.statuskaart {
+  background: var(--kleur-oppervlak);
+  border: 1px solid var(--kleur-rand);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.statuskaart .status-bezig,
+.statuskaart .status-mislukt {
+  font-size: 1rem;
+  font-style: normal;
+  margin-bottom: 0.5rem;
+}
+
+.statuskaart-toelichting {
+  color: var(--kleur-tekst-zwak);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ---------- Lege staat ---------- */
+
+.leeg-paneel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--kleur-tekst-zwak);
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.leeg-paneel-icoon {
+  font-size: 2rem;
+  color: var(--kleur-accent);
+  opacity: 0.6;
+}
+
+/* ---------- Gesprek header ---------- */
+
+.gesprek-header {
+  margin-bottom: 1.5rem;
+}
+
+.klant-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--kleur-tekst-zwak);
+  background: var(--kleur-bg);
+  border: 1px solid var(--kleur-rand);
+  border-radius: 999px;
+  padding: 0.15rem 0.65rem;
+}
+
+.transcript-acties {
+  margin-bottom: 1.5rem;
+}
+
+.knop-secundair {
+  padding: 0.5rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--kleur-rand);
+  background: var(--kleur-oppervlak);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.knop-secundair:hover {
+  border-color: var(--kleur-accent);
+}
+
+.knop-secundair.gekopieerd {
+  color: var(--kleur-accent);
+  border-color: var(--kleur-accent);
+}
+
+/* ---------- Transcript ---------- */
+
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.regel {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.regel-avatar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.regel--praktijkmedewerker .regel-avatar {
+  background: var(--kleur-praktijk);
+}
+
+.regel--klant .regel-avatar {
+  background: var(--kleur-klant);
+}
+
+.regel-inhoud {
+  background: var(--kleur-oppervlak);
+  border: 1px solid var(--kleur-rand);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+  flex: 1;
+}
+
+.regel-spreker {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
+}
+
+.regel--praktijkmedewerker .regel-spreker {
+  color: var(--kleur-praktijk);
+}
+
+.regel--klant .regel-spreker {
+  color: var(--kleur-klant);
+}
+
+.regel-tekst {
+  color: var(--kleur-tekst);
+}
+
+/* ---------- Opnamescherm ---------- */
+
+.opname-kaart {
+  background: var(--kleur-oppervlak);
+  border: 1px solid var(--kleur-rand);
+  border-radius: var(--radius);
+  box-shadow: var(--schaduw);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.microfoon-veld {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-self: stretch;
+  font-size: 0.85rem;
+  color: var(--kleur-tekst-zwak);
+}
+
+.opname-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.opname-knop {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--kleur-accent);
+  box-shadow: var(--schaduw);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.opname-knop:hover {
+  background: var(--kleur-accent-hover);
+}
+
+.opname-knop:active {
+  transform: scale(0.96);
+}
+
+.opname-knop:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.opname-knop-icoon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.opname-knop--actief {
+  animation: opname-puls 1.6s ease-in-out infinite;
+}
+
+.opname-knop--actief .opname-knop-icoon {
+  border-radius: 0.3rem;
+}
+
+@keyframes opname-puls {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 105, 75, 0.4); }
+  50% { box-shadow: 0 0 0 0.9rem rgba(194, 105, 75, 0); }
+}
+
+.opname-status {
+  color: var(--kleur-tekst-zwak);
+  font-size: 0.9rem;
+  min-height: 1.2rem;
+}
+
+.opname-timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--kleur-tekst);
+}
+
+/* ---------- Klein scherm ---------- */
+
+@media (max-width: 40rem) {
+  .layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--kleur-rand);
+    max-height: 40vh;
+  }
+
+  .inhoud {
+    overflow-y: visible;
+  }
+}
