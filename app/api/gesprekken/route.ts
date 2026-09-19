@@ -7,7 +7,10 @@ import { haalGesprekkenLijstOp } from "@/lib/gesprekken";
 function appUrl(): string {
   const url = process.env.APP_URL;
   if (!url) throw new Error("APP_URL ontbreekt (nodig voor de AssemblyAI-webhook)");
-  return url.replace(/\/$/, "");
+  const zonderSlash = url.replace(/\/$/, "");
+  // APP_URL wordt vaak zonder protocol ingevuld (bv. naar analogie van Vercel's eigen
+  // VERCEL_URL, die ook altijd zonder "https://" is) — vul dat dan automatisch aan.
+  return /^https?:\/\//.test(zonderSlash) ? zonderSlash : `https://${zonderSlash}`;
 }
 
 function webhookSecret(): string {
