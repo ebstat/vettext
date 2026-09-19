@@ -25,9 +25,31 @@ export default function OpnemenPage() {
   const beeindigdOpRef = useRef<Date | null>(null);
 
   useEffect(() => {
-    navigator.mediaDevices.enumerateDevices().then((devices) => {
+    async function laadApparaten() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
       setApparaten(devices.filter((device) => device.kind === "audioinput"));
-    });
+    }
+
+    async function vraagToestemmingEnLaad() {
+      try {
+        // Browsers geven pas namen/volledige lijst van invoerapparaten (bv. een externe
+        // USB-ontvanger) via enumerateDevices() zodra deze pagina al eens microfoontoegang
+        // heeft gekregen. Vraag die daarom hier alvast aan, sluit de stream meteen weer.
+        const tijdelijkeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        tijdelijkeStream.getTracks().forEach((track) => track.stop());
+      } catch {
+        // Toestemming geweigerd of geen microfoon aangesloten — laad hieronder alsnog
+        // wat enumerateDevices() teruggeeft (mogelijk onvolledig/naamloos).
+      }
+      await laadApparaten();
+    }
+
+    void vraagToestemmingEnLaad();
+
+    // Ververs de lijst als er tijdens het gebruik een apparaat wordt aan-/losgekoppeld
+    // (bv. de Rode Wireless ME-ontvanger die pas na het openen van de pagina wordt aangesloten).
+    navigator.mediaDevices.addEventListener("devicechange", laadApparaten);
+    return () => navigator.mediaDevices.removeEventListener("devicechange", laadApparaten);
   }, []);
 
   useEffect(() => {
