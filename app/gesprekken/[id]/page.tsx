@@ -1,17 +1,12 @@
 import { notFound } from "next/navigation";
 
-import type { Regel } from "@/db/schema";
 import { formatDatumTijdspanne } from "@/lib/datum";
 import { haalGesprekMetRegelsOp } from "@/lib/gesprekken";
+import { formatPlatteTekst, LABEL_PER_SPREKER } from "@/lib/transcript";
 
 import KopieerKnop from "./kopieer-knop";
 
 export const dynamic = "force-dynamic";
-
-const LABEL_PER_SPREKER: Record<Regel["spreker"], string> = {
-  praktijkmedewerker: "Praktijkmedewerker",
-  klant: "Klant",
-};
 
 export default async function GesprekPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,31 +50,41 @@ export default async function GesprekPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  const platteTekst = gesprek.regels
-    .map((regel) => `${LABEL_PER_SPREKER[regel.spreker]}: ${regel.tekst}`)
-    .join("\n");
+  const platteTekst = formatPlatteTekst(gesprek.regels);
 
   return (
     <main>
       {header}
 
-      <div className="transcript-acties">
-        <KopieerKnop tekst={platteTekst} />
-      </div>
+      {gesprek.samenvatting && (
+        <section className="samenvatting">
+          <h2>Samenvatting</h2>
+          <p className="samenvatting-tekst">{gesprek.samenvatting}</p>
+          <KopieerKnop tekst={gesprek.samenvatting} label="Kopieer samenvatting" />
+        </section>
+      )}
 
-      <div className="transcript">
-        {gesprek.regels.map((regel) => (
-          <div key={regel.id} className={`regel regel--${regel.spreker}`}>
-            <div className="regel-avatar" aria-hidden="true">
-              {LABEL_PER_SPREKER[regel.spreker].charAt(0)}
+      <section>
+        <h2>Volledig transcript</h2>
+
+        <div className="transcript-acties">
+          <KopieerKnop tekst={platteTekst} label="Kopieer transcript" />
+        </div>
+
+        <div className="transcript">
+          {gesprek.regels.map((regel) => (
+            <div key={regel.id} className={`regel regel--${regel.spreker}`}>
+              <div className="regel-avatar" aria-hidden="true">
+                {LABEL_PER_SPREKER[regel.spreker].charAt(0)}
+              </div>
+              <div className="regel-inhoud">
+                <div className="regel-spreker">{LABEL_PER_SPREKER[regel.spreker]}</div>
+                <div className="regel-tekst">{regel.tekst}</div>
+              </div>
             </div>
-            <div className="regel-inhoud">
-              <div className="regel-spreker">{LABEL_PER_SPREKER[regel.spreker]}</div>
-              <div className="regel-tekst">{regel.tekst}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function KopieerKnop({ tekst }: { tekst: string }) {
+export default function KopieerKnop({ tekst, label = "Kopieer transcript" }: { tekst: string; label?: string }) {
   const [gekopieerd, setGekopieerd] = useState(false);
 
   async function kopieer() {
@@ -13,7 +13,7 @@ export default function KopieerKnop({ tekst }: { tekst: string }) {
 
   return (
     <button className={`knop-secundair ${gekopieerd ? "gekopieerd" : ""}`} onClick={kopieer}>
-      {gekopieerd ? "✓ Gekopieerd" : "Kopieer transcript"}
+      {gekopieerd ? "✓ Gekopieerd" : label}
     </button>
   );
 }

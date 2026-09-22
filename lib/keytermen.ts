@@ -61,10 +61,30 @@ export const KEYTERMEN: string[] = [
   "alvleesklier",
   "schildklier",
 
+  // Oogheelkunde (o.a. op basis van een echt transcript met een oogontsteking:
+  // "hoornvlies" en "traanfilm" kwamen er als "hoorn vliezen"/"twaalf film" uit)
+  "hoornvlies",
+  "bindvlies",
+  "bindvliesontsteking",
+  "conjunctivitis",
+  "traanfilm",
+  "traanvocht",
+  "traankanaal",
+  "traanvlekken",
+  "porfyrine",
+  "derde ooglid",
+  "pupil",
+
+  // Insectensteken (in hetzelfde transcript werd "wesp" onherkenbaar als "les")
+  "wesp",
+  "wespensteek",
+  "bijensteek",
+
   // Medicatie
   "antibioticakuur",
   "ontstekingsremmer",
   "pijnstiller",
   "oogdruppels",
   "oordruppels",
+  "oogzalf",
 ];
