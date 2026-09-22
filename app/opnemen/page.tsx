@@ -101,7 +101,9 @@ export default function OpnemenPage() {
         audio: geselecteerdApparaat ? { deviceId: { exact: geselecteerdApparaat } } : true,
       });
 
-      const recorder = new MediaRecorder(stream);
+      // Zonder expliciete bitrate kiest de browser zelf, wat vrij zuinig/comprimerend
+      // kan zijn — dat kan de spraakherkenning nadelig beinvloeden bij een langere opname.
+      const recorder = new MediaRecorder(stream, { audioBitsPerSecond: 128000 });
       chunksRef.current = [];
 
       recorder.ondataavailable = (event) => {

@@ -1,3 +1,5 @@
+import { KEYTERMEN } from "./keytermen";
+
 const ASSEMBLYAI_BASE_URL = "https://api.eu.assemblyai.com";
 
 export type AssemblyAiUtterance = {
@@ -55,6 +57,7 @@ export async function dienTranscriptieIn(
       audio_url: audioUrl,
       language_code: "nl",
       speaker_labels: true,
+      ...(KEYTERMEN.length > 0 ? { keyterms_prompt: KEYTERMEN } : {}),
       webhook_url: opties.webhookUrl,
       webhook_auth_header_name: "x-webhook-secret",
       webhook_auth_header_value: opties.webhookSecret,
