@@ -356,28 +356,6 @@ select {
   margin-bottom: 1.5rem;
 }
 
-.samenvatting {
-  background: var(--kleur-accent-zwak);
-  border: 1px solid var(--kleur-accent);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-.samenvatting h2 {
-  font-size: 1.05rem;
-  margin-bottom: 0.6rem;
-}
-
-.samenvatting-tekst {
-  white-space: pre-wrap;
-}
-
-main h2 {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-}
-
 .knop-secundair {
   padding: 0.5rem 1rem;
   border-radius: 0.6rem;

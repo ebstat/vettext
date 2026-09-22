@@ -56,35 +56,23 @@ export default async function GesprekPage({ params }: { params: Promise<{ id: st
     <main>
       {header}
 
-      {gesprek.samenvatting && (
-        <section className="samenvatting">
-          <h2>Samenvatting</h2>
-          <p className="samenvatting-tekst">{gesprek.samenvatting}</p>
-          <KopieerKnop tekst={gesprek.samenvatting} label="Kopieer samenvatting" />
-        </section>
-      )}
+      <div className="transcript-acties">
+        <KopieerKnop tekst={platteTekst} />
+      </div>
 
-      <section>
-        <h2>Volledig transcript</h2>
-
-        <div className="transcript-acties">
-          <KopieerKnop tekst={platteTekst} label="Kopieer transcript" />
-        </div>
-
-        <div className="transcript">
-          {gesprek.regels.map((regel) => (
-            <div key={regel.id} className={`regel regel--${regel.spreker}`}>
-              <div className="regel-avatar" aria-hidden="true">
-                {LABEL_PER_SPREKER[regel.spreker].charAt(0)}
-              </div>
-              <div className="regel-inhoud">
-                <div className="regel-spreker">{LABEL_PER_SPREKER[regel.spreker]}</div>
-                <div className="regel-tekst">{regel.tekst}</div>
-              </div>
+      <div className="transcript">
+        {gesprek.regels.map((regel) => (
+          <div key={regel.id} className={`regel regel--${regel.spreker}`}>
+            <div className="regel-avatar" aria-hidden="true">
+              {LABEL_PER_SPREKER[regel.spreker].charAt(0)}
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="regel-inhoud">
+              <div className="regel-spreker">{LABEL_PER_SPREKER[regel.spreker]}</div>
+              <div className="regel-tekst">{regel.tekst}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

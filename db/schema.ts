@@ -27,19 +27,5 @@ export const regels = pgTable("regels", {
   volgorde: integer("volgorde").notNull(),
 });
 
-// LLM-nabewerking van een gesprek (nu: samenvatting). Los van `regels` gehouden
-// zodat het brontranscript (wat AssemblyAI letterlijk hoorde) altijd intact
-// blijft als bron van waarheid — de LLM-versie is een aanvulling, geen vervanging.
-export const bewerkingen = pgTable("bewerkingen", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  gesprekId: uuid("gesprek_id")
-    .notNull()
-    .references(() => gesprekken.id, { onDelete: "cascade" }),
-  type: text("type").notNull(),
-  tekst: text("tekst").notNull(),
-  aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true }).notNull().defaultNow(),
-});
-
 export type Gesprek = typeof gesprekken.$inferSelect;
 export type Regel = typeof regels.$inferSelect;
-export type Bewerking = typeof bewerkingen.$inferSelect;

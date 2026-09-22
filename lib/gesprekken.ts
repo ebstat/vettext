@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/db";
-import { bewerkingen, gesprekken, regels } from "@/db/schema";
+import { gesprekken, regels } from "@/db/schema";
 
 export type GesprekStatus = "bezig" | "klaar" | "mislukt";
 
@@ -43,17 +43,9 @@ export async function haalGesprekMetRegelsOp(id: string) {
     .where(eq(regels.gesprekId, id))
     .orderBy(asc(regels.volgorde));
 
-  const [samenvatting] = await db
-    .select()
-    .from(bewerkingen)
-    .where(and(eq(bewerkingen.gesprekId, id), eq(bewerkingen.type, "samenvatting")))
-    .orderBy(desc(bewerkingen.aangemaaktOp))
-    .limit(1);
-
   return {
     ...gesprek,
     regels: gesprekRegels,
-    samenvatting: samenvatting?.tekst ?? null,
     status: bepaalStatus(gesprek.foutmelding, gesprekRegels.length > 0),
   };
 }

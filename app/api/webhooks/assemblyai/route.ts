@@ -1,15 +1,11 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { bewerkingen, gesprekken, regels } from "@/db/schema";
+import { gesprekken, regels } from "@/db/schema";
 import { haalTranscriptOp } from "@/lib/assemblyai";
 import { bepaalSprekerLabels, VOLUME_VENSTER_MS } from "@/lib/audio";
-import { genereerSamenvatting } from "@/lib/samenvatting";
-import { formatPlatteTekst } from "@/lib/transcript";
 
-// Verhoogd t.o.v. de 60s default: de samenvatting is een extra LLM-call bovenop
-// het ophalen van het transcript.
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 type WebhookPayload = {
   transcript_id?: string;
@@ -83,17 +79,6 @@ export async function POST(request: Request) {
     await db.insert(regels).values(nieuweRegels);
     await db.update(gesprekken).set({ volumeProfiel: null }).where(eq(gesprekken.id, gesprek.id));
     console.log(`[webhook] gesprek ${gesprek.id} transcript opgeslagen (${Date.now() - begin}ms)`);
-
-    // De samenvatting is een aanvulling, geen vereiste — het transcript staat er al.
-    // Een mislukte LLM-call mag de webhook dus niet laten falen (en AssemblyAI niet
-    // onnodig laten retryen).
-    try {
-      const samenvatting = await genereerSamenvatting(formatPlatteTekst(nieuweRegels));
-      await db.insert(bewerkingen).values({ gesprekId: gesprek.id, type: "samenvatting", tekst: samenvatting });
-      console.log(`[webhook] samenvatting opgeslagen voor gesprek ${gesprek.id} (${Date.now() - begin}ms)`);
-    } catch (samenvattingError) {
-      console.error(`[webhook] samenvatting genereren mislukt voor gesprek ${gesprek.id}:`, samenvattingError);
-    }
 
     return Response.json({ ok: true });
   } catch (error) {
