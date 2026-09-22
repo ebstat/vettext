@@ -1,5 +1,6 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -61,12 +62,23 @@ export default function OpnemenPage() {
   async function uploadOpname(audioBlob: Blob) {
     setStatus("uploaden");
     try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "opname.webm");
-      formData.append("gestartOp", (gestartOpRef.current ?? new Date()).toISOString());
-      formData.append("beeindigdOp", (beeindigdOpRef.current ?? new Date()).toISOString());
+      // Rechtstreeks naar Vercel Blob uploaden, buiten onze eigen functie om — een
+      // request-body naar een Vercel Function is hard begrensd op 4,5MB, en een opname
+      // van meer dan een paar minuten zit daar al overheen.
+      const blob = await upload(`opnames/${crypto.randomUUID()}.webm`, audioBlob, {
+        access: "private",
+        handleUploadUrl: "/api/gesprekken/upload-url",
+      });
 
-      const response = await fetch("/api/gesprekken", { method: "POST", body: formData });
+      const response = await fetch("/api/gesprekken", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          blobUrl: blob.url,
+          gestartOp: (gestartOpRef.current ?? new Date()).toISOString(),
+          beeindigdOp: (beeindigdOpRef.current ?? new Date()).toISOString(),
+        }),
+      });
       if (!response.ok) {
         const data = await response.json().catch(() => null);
         throw new Error(data?.error ?? `Upload mislukt (${response.status})`);

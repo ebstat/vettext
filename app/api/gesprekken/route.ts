@@ -1,3 +1,5 @@
+import { del, get } from "@vercel/blob";
+
 import { db } from "@/db";
 import { gesprekken } from "@/db/schema";
 import { dienTranscriptieIn, uploadAudio } from "@/lib/assemblyai";
@@ -23,36 +25,48 @@ function webhookSecret(): string {
   return secret;
 }
 
+type GesprekBody = {
+  blobUrl?: string;
+  klantnaam?: string;
+  gestartOp?: string;
+  beeindigdOp?: string;
+};
+
 export async function POST(request: Request) {
   const begin = Date.now();
+  let blobUrl: string | undefined;
 
   try {
-    const formData = await request.formData();
-    const audioBestand = formData.get("audio");
-    const klantnaam = formData.get("klantnaam");
-    const gestartOpRaw = formData.get("gestartOp");
-    const beeindigdOpRaw = formData.get("beeindigdOp");
+    const body = (await request.json()) as GesprekBody;
+    blobUrl = body.blobUrl;
 
-    if (!(audioBestand instanceof Blob) || audioBestand.size === 0) {
-      return Response.json({ error: "Geen audiobestand ontvangen" }, { status: 400 });
+    if (!blobUrl) {
+      return Response.json({ error: "blobUrl ontbreekt" }, { status: 400 });
     }
 
-    if (typeof gestartOpRaw !== "string" || typeof beeindigdOpRaw !== "string") {
+    if (typeof body.gestartOp !== "string" || typeof body.beeindigdOp !== "string") {
       return Response.json({ error: "gestartOp/beeindigdOp ontbreken" }, { status: 400 });
     }
 
-    const gestartOp = new Date(gestartOpRaw);
-    const beeindigdOp = new Date(beeindigdOpRaw);
+    const gestartOp = new Date(body.gestartOp);
+    const beeindigdOp = new Date(body.beeindigdOp);
     if (Number.isNaN(gestartOp.getTime()) || Number.isNaN(beeindigdOp.getTime())) {
       return Response.json({ error: "gestartOp/beeindigdOp zijn geen geldige datums" }, { status: 400 });
     }
 
     const duurSeconden = Math.round((beeindigdOp.getTime() - gestartOp.getTime()) / 1000);
-    console.log(
-      `[gesprekken] audio ontvangen: ${audioBestand.size} bytes, opnameduur ~${duurSeconden}s, type ${audioBestand.type}`,
-    );
+    console.log(`[gesprekken] audio ophalen van Blob, opnameduur ~${duurSeconden}s`);
 
-    const audioBuffer = Buffer.from(await audioBestand.arrayBuffer());
+    // De browser heeft de opname al rechtstreeks naar Vercel Blob geupload (zie
+    // app/api/gesprekken/upload-url) — dat omzeilt de harde 4,5MB-limiet op de
+    // request-body van een Vercel Function. De blob is private, dus we lezen 'm
+    // hier terug met de SDK (geauthenticeerd) i.p.v. een kale fetch() op de URL.
+    const blobResultaat = await get(blobUrl, { access: "private" });
+    if (!blobResultaat || blobResultaat.statusCode !== 200 || !blobResultaat.stream) {
+      throw new Error(`Opname ophalen van Blob mislukt (status ${blobResultaat?.statusCode ?? "onbekend"})`);
+    }
+    const audioBuffer = Buffer.from(await new Response(blobResultaat.stream).arrayBuffer());
+    console.log(`[gesprekken] audio opgehaald: ${audioBuffer.byteLength} bytes (${Date.now() - begin}ms)`);
 
     // Bereken eerst het (kleine) volumeprofiel — dat is alles wat we straks nog
     // nodig hebben om de sprekerlabels te bepalen zodra de webhook binnenkomt.
@@ -74,7 +88,7 @@ export async function POST(request: Request) {
       .values({
         gestartOp,
         beeindigdOp,
-        klantnaam: typeof klantnaam === "string" && klantnaam.length > 0 ? klantnaam : null,
+        klantnaam: typeof body.klantnaam === "string" && body.klantnaam.length > 0 ? body.klantnaam : null,
         transcriptId,
         volumeProfiel,
       })
@@ -86,6 +100,12 @@ export async function POST(request: Request) {
     console.error(`[gesprekken] POST mislukt na ${Date.now() - begin}ms:`, error);
     const message = error instanceof Error ? error.message : "Onbekende fout";
     return Response.json({ error: `Verwerken van de opname is mislukt: ${message}` }, { status: 500 });
+  } finally {
+    if (blobUrl) {
+      // De opname staat nu bij AssemblyAI (of de poging is mislukt) — de tijdelijke
+      // Blob mag hoe dan ook weg, we bewaren nergens audio.
+      await del(blobUrl).catch((error) => console.error("[gesprekken] blob verwijderen mislukt:", error));
+    }
   }
 }
 
