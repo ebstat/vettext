@@ -14,7 +14,10 @@ export async function POST(request: Request) {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ["audio/*"],
+        // webm is een containerformaat voor zowel audio als video; sommige browsers
+        // labelen een audio-only MediaRecorder-opname toch als "video/webm". We nemen
+        // hier alleen audio op, dus staan dat expliciet ook toe naast "audio/*".
+        allowedContentTypes: ["audio/*", "video/webm"],
       }),
       onUploadCompleted: async () => {
         // Niet nodig: de client stuurt de blob-URL direct door naar POST
