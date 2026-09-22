@@ -67,13 +67,17 @@ export default function OpnemenPage() {
       formData.append("beeindigdOp", (beeindigdOpRef.current ?? new Date()).toISOString());
 
       const response = await fetch("/api/gesprekken", { method: "POST", body: formData });
-      if (!response.ok) throw new Error("Upload mislukt");
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error ?? `Upload mislukt (${response.status})`);
+      }
 
       const gesprek = (await response.json()) as { id: string };
       router.push(`/gesprekken/${gesprek.id}`);
       router.refresh();
-    } catch {
-      setFoutmelding("Uploaden of verwerken van de opname is mislukt. Probeer het opnieuw.");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "onbekende fout";
+      setFoutmelding(`Uploaden of verwerken van de opname is mislukt: ${detail}`);
       setStatus("idle");
     }
   }
